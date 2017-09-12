@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="
+     http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+     http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+     http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+     http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
+     ">
+
+	<context:annotation-config />
+	<context:component-scan base-package="org.fran.cloud.mq" />
+
+	<bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="location" value="classpath:test.properties"/>
+	</bean>
+
+	<util:properties id="config" location="classpath:test.properties"/>
+
+
+	<!-- queue -->
+	<bean id="newsPublishQueue" class="org.fran.cloud.mq.aws.sqs.factories.SQSQueueImpl">
+		<property name="queueName" value="#{config['q.sqs.queue.translate']}" />
+	</bean>
+
+	<bean id="layoutQueue" class="org.fran.cloud.mq.aws.sqs.factories.SQSQueueImpl">
+		<property name="queueName" value="#{config['q.sqs.queue.layout']}" />
+	</bean>
+
+	<!-- queue client factory -->
+	<bean id="sQSFactory" class="org.fran.cloud.mq.aws.sqs.factories.SQSFactoryImpl">
+		<property name="region" value="#{config['q.sqs.region']}" />
+		<property name="accessKey" value="#{config['q.sqs.accesskey']}" />
+		<property name="securityKey" value="#{config['q.sqs.securityKey']}" />
+		<property name="waitTimeSeconds" value="5" />
+		<property name="mainPoolSize" value="10" />
+		<property name="workExecutorPoolSize" value="10" />
+		<property name="queues">
+			<list>
+				<ref bean="newsPublishQueue" />
+				<ref bean="layoutQueue" />
+			</list>
+		</property>
+	</bean>
+
+	<!-- topic -->
+	<bean id="newsPublishTopic" class="org.fran.cloud.mq.aws.sns.factories.SNSTopicImpl">
+		<property name="topicName" value="#{config['q.sns.topic.translate']}" />
+	</bean>
+
+	<!-- topic client factory -->
+	<bean id="snsFactory" class="org.fran.cloud.mq.aws.sns.factories.SNSFactoryImpl">
+		<property name="region" value="#{config['q.sns.region']}" />
+		<property name="accessKey" value="#{config['q.sns.accesskey']}" />
+		<property name="securityKey" value="#{config['q.sns.securityKey']}" />
+		<property name="topics">
+			<list>
+				<ref bean="newsPublishTopic" />
+			</list>
+		</property>
+	</bean>
+
+</beans>
