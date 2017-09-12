@@ -1,5 +1,9 @@
 # fran-cloud
 
+
+
+# fran-cloud/mq
+
 亚马逊消息收发服务SQS及SNS的简单封装，与spring结合紧密
 
 sqs官网地址：[sqs](https://aws.amazon.com/cn/sqs/?nc2=h_m1 "sqs")
