@@ -4,5 +4,5 @@ public interface SQSConsumer {
 	
 	public void handle(String message) throws Exception;
 
-	public SQSQueue getQueue();
+	public String getQueue();
 }

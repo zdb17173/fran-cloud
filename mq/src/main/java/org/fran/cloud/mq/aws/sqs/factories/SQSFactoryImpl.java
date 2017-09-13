@@ -12,6 +12,7 @@ import org.fran.cloud.mq.aws.exceptions.SQSInitializationException;
 import org.fran.cloud.mq.aws.exceptions.SQSMessageReceiveException;
 import org.fran.cloud.mq.aws.sqs.anno.Consumer;
 import org.fran.cloud.mq.aws.sqs.interfaces.SQSConsumer;
+import org.fran.cloud.mq.aws.sqs.interfaces.SQSConsumerProvider;
 import org.fran.cloud.mq.aws.sqs.interfaces.SQSFactory;
 import org.fran.cloud.mq.aws.sqs.interfaces.SQSQueue;
 import org.springframework.context.ApplicationContext;
@@ -47,9 +48,7 @@ public class SQSFactoryImpl implements SQSFactory{
 	private int mainPoolSize = 10;
 	private int waitTimeSeconds = 5;
 	private int workExecutorPoolSize = 10;
-	
-	@Resource
-	private ApplicationContext applicationContext;
+	private SQSConsumerProvider sqsConsumerProvider;
 	
 	@PostConstruct
 	public void init() throws SQSInitializationException{
@@ -103,19 +102,11 @@ public class SQSFactoryImpl implements SQSFactory{
 						throw new SQSInitializationException("queueUrl null["+ queue.getQueueName() +"]");
 				}
 			}
-			
-//			String[] providers = applicationContext.getBeanNamesForAnnotation(Provider.class);
-			String[] consumers = applicationContext.getBeanNamesForAnnotation(Consumer.class);
-			if(consumers!= null){
-				for(String cs : consumers){
-					Object csObj = applicationContext.getBean(cs);
-					if(csObj instanceof SQSConsumer){
-						registerMessageConsumer((SQSConsumer)csObj);
-					}else{
-						throw new SQSInitializationException("Consumer must instanceof SQSConsumer");
-					}
+
+			if(sqsConsumerProvider.getConsumers()!= null && sqsConsumerProvider.getConsumers().size()> 0)
+				for(SQSConsumer cs : sqsConsumerProvider.getConsumers()){
+					registerMessageConsumer(cs);
 				}
-			}
 		}
 	}
 	
@@ -147,7 +138,7 @@ public class SQSFactoryImpl implements SQSFactory{
 						break;
 					}else{
 						try{
-							ReceiveMessageRequest receiveMessageRequest = new ReceiveMessageRequest(cs.getQueue().getQueueUrl());
+							ReceiveMessageRequest receiveMessageRequest = new ReceiveMessageRequest(getQueue(cs.getQueue()).getQueueUrl());
 							receiveMessageRequest.setWaitTimeSeconds(waitTimeSeconds);
 							ReceiveMessageResult message = sqs.receiveMessage(receiveMessageRequest);
 							if(message != null && message.getMessages()!= null && message.getMessages().size() >0){
@@ -161,7 +152,7 @@ public class SQSFactoryImpl implements SQSFactory{
 												cs.handle(message);
 												String messageReceiptHandle = msg.getReceiptHandle();
 												sqs.deleteMessage(new DeleteMessageRequest()
-														.withQueueUrl(cs.getQueue().getQueueUrl())
+														.withQueueUrl(getQueue(cs.getQueue()).getQueueUrl())
 														.withReceiptHandle(messageReceiptHandle));
 											} catch (Exception e) {
 												e.printStackTrace();
@@ -171,14 +162,23 @@ public class SQSFactoryImpl implements SQSFactory{
 								}
 							}
 						}catch (Exception e) {
-							new SQSMessageReceiveException(cs.getQueue().getQueueUrl(), e).printStackTrace();
+							new SQSMessageReceiveException(getQueue(cs.getQueue()).getQueueUrl(), e).printStackTrace();
 						}
 						
 					}
 				}
 			}
 		});
-		System.out.println("registerMessageConsumer["+ cs.getQueue().getQueueName() +"]");
+		System.out.println("registerMessageConsumer["+ getQueue(cs.getQueue()).getQueueName() +"]");
+	}
+
+	public SQSQueue getQueue(String name){
+		if(name!= null){
+			for(SQSQueue q : queues)
+				if(q.getQueueName()!= null && q.getQueueName().equals(name))
+					return q;
+		}
+		return null;
 	}
 	
 	public SQSClient getClient(SQSQueue queue){
@@ -236,7 +236,8 @@ public class SQSFactoryImpl implements SQSFactory{
 	public void setWorkExecutorPoolSize(int workExecutorPoolSize) {
 		this.workExecutorPoolSize = workExecutorPoolSize;
 	}
-	
-	
-	
+
+	public void setSqsConsumerProvider(SQSConsumerProvider sqsConsumerProvider) {
+		this.sqsConsumerProvider = sqsConsumerProvider;
+	}
 }
