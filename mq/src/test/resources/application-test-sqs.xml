@@ -29,6 +29,8 @@
 		<property name="queueName" value="#{config['q.sqs.queue.layout']}" />
 	</bean>
 
+	<bean id="csProvider" class="org.fran.cloud.mq.extend.SQSConsumerProviderImpl"></bean>
+
 	<!-- queue client factory -->
 	<bean id="sQSFactory" class="org.fran.cloud.mq.aws.sqs.factories.SQSFactoryImpl">
 		<property name="region" value="#{config['q.sqs.region']}" />
@@ -37,6 +39,7 @@
 		<property name="waitTimeSeconds" value="5" />
 		<property name="mainPoolSize" value="10" />
 		<property name="workExecutorPoolSize" value="10" />
+		<property name="sqsConsumerProvider" ref="csProvider"/>
 		<property name="queues">
 			<list>
 				<ref bean="newsPublishQueue" />

@@ -20,6 +20,8 @@ sns官网地址：[sns](https://aws.amazon.com/cn/sns/?nc2=h_m1 "sns")
     <property name="queueName" value="#{config['q.sqs.queue.translate']}" />
 </bean>
 
+<bean id="csProvider" class="org.fran.cloud.mq.extend.SQSConsumerProviderImpl"></bean>
+
 <bean id="sQSFactory" class="org.fran.cloud.mq.aws.sqs.factories.SQSFactoryImpl">
 	<property name="region" value="#{config['q.sqs.region']}" />
 	<property name="accessKey" value="#{config['q.sqs.accesskey']}" />
@@ -61,10 +63,7 @@ public void test(){
 @Service
 @Consumer
 public class Consumer1 implements SQSConsumer {
-	
-	@Resource
-	SQSQueue newsPublishQueue;
-	
+
 	int count;
 	
 	@Override
@@ -78,8 +77,8 @@ public class Consumer1 implements SQSConsumer {
 	}
 
 	@Override
-	public SQSQueue getQueue() {
-		return newsPublishQueue;
+	public String getQueue() {
+		return "queueName";
 	}
 
 }

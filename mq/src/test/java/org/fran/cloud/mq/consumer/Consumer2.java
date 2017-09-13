@@ -28,8 +28,8 @@ public class Consumer2 implements SQSConsumer {
 	}
 
 	@Override
-	public SQSQueue getQueue() {
-		return layoutQueue;
+	public String getQueue() {
+		return "newspublish-layout";
 	}
 
 }
