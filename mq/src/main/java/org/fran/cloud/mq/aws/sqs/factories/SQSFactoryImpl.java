@@ -111,9 +111,10 @@ public class SQSFactoryImpl implements SQSFactory{
 	}
 	
 	private void registerMessageConsumer(SQSConsumer cs) throws SQSInitializationException{
-		if(cs == null || cs.getQueue() == null)
-			throw new SQSInitializationException("registMessageConsumerError");
-		
+		if(cs == null || cs.getQueue() == null || getQueue(cs.getQueue()) == null || getQueue(cs.getQueue()).getQueueUrl() == null)
+			throw new SQSInitializationException("registerMessageConsumerError");
+		SQSQueue queue = getQueue(cs.getQueue());
+
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.setPropertyNamingStrategy(new PropertyNamingStrategy() {  
 		    private static final long serialVersionUID = 1L;
@@ -138,7 +139,7 @@ public class SQSFactoryImpl implements SQSFactory{
 						break;
 					}else{
 						try{
-							ReceiveMessageRequest receiveMessageRequest = new ReceiveMessageRequest(getQueue(cs.getQueue()).getQueueUrl());
+							ReceiveMessageRequest receiveMessageRequest = new ReceiveMessageRequest(queue.getQueueUrl());
 							receiveMessageRequest.setWaitTimeSeconds(waitTimeSeconds);
 							ReceiveMessageResult message = sqs.receiveMessage(receiveMessageRequest);
 							if(message != null && message.getMessages()!= null && message.getMessages().size() >0){
@@ -152,7 +153,7 @@ public class SQSFactoryImpl implements SQSFactory{
 												cs.handle(message);
 												String messageReceiptHandle = msg.getReceiptHandle();
 												sqs.deleteMessage(new DeleteMessageRequest()
-														.withQueueUrl(getQueue(cs.getQueue()).getQueueUrl())
+														.withQueueUrl(queue.getQueueUrl())
 														.withReceiptHandle(messageReceiptHandle));
 											} catch (Exception e) {
 												e.printStackTrace();
@@ -162,14 +163,14 @@ public class SQSFactoryImpl implements SQSFactory{
 								}
 							}
 						}catch (Exception e) {
-							new SQSMessageReceiveException(getQueue(cs.getQueue()).getQueueUrl(), e).printStackTrace();
+							new SQSMessageReceiveException(queue.getQueueUrl(), e).printStackTrace();
 						}
 						
 					}
 				}
 			}
 		});
-		System.out.println("registerMessageConsumer["+ getQueue(cs.getQueue()).getQueueName() +"]");
+		System.out.println("registerMessageConsumer["+ queue.getQueueName() +"]");
 	}
 
 	public SQSQueue getQueue(String name){
@@ -185,6 +186,14 @@ public class SQSFactoryImpl implements SQSFactory{
 		if(queue == null || queue.getQueueName() == null || "".equals(queue.getQueueName()))
 			return null;
 		return new SQSClient(sqs, queue);
+	}
+
+	public SQSClient getClient(String qName){
+		SQSQueue queue = getQueue(qName);
+		if(queue == null || queue.getQueueName() == null || "".equals(queue.getQueueName()))
+			return null;
+		else
+			return new SQSClient(sqs, queue);
 	}
 	
 	@PreDestroy

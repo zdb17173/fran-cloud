@@ -26,7 +26,25 @@ public class SNSFactoryImpl implements SNSFactory {
 	private String securityKey;
 	AmazonSNS sns;
 	List<SNSTopic> topics;
-	
+
+	public SNSTopic getTopic(String name){
+		if(name!= null){
+			for(SNSTopic t : topics)
+				if(t.getTopicName().equals(name))
+					return t;
+		}
+		return null;
+	}
+
+	public SNSClient getClient(String topic){
+		SNSTopic t = getTopic(topic);
+		if(t == null)
+			return null;
+		else{
+			return new SNSClient(sns,t);
+		}
+	}
+
 	public SNSClient getClient(SNSTopic topic){
 		return new SNSClient(sns,topic);
 	}
