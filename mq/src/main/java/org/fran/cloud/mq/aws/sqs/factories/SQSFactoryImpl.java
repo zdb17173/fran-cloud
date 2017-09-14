@@ -6,16 +6,13 @@ import java.util.concurrent.Executors;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import javax.annotation.Resource;
 
 import org.fran.cloud.mq.aws.exceptions.SQSInitializationException;
 import org.fran.cloud.mq.aws.exceptions.SQSMessageReceiveException;
-import org.fran.cloud.mq.aws.sqs.anno.Consumer;
 import org.fran.cloud.mq.aws.sqs.interfaces.SQSConsumer;
 import org.fran.cloud.mq.aws.sqs.interfaces.SQSConsumerProvider;
 import org.fran.cloud.mq.aws.sqs.interfaces.SQSFactory;
 import org.fran.cloud.mq.aws.sqs.interfaces.SQSQueue;
-import org.springframework.context.ApplicationContext;
 
 import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.AWSCredentials;
@@ -28,7 +25,6 @@ import com.amazonaws.services.sqs.model.ListQueuesResult;
 import com.amazonaws.services.sqs.model.Message;
 import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
 import com.amazonaws.services.sqs.model.ReceiveMessageResult;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
@@ -44,7 +40,7 @@ public class SQSFactoryImpl implements SQSFactory{
 	private String accessKey;
 	private String securityKey;
 	private AmazonSQS sqs;
-	private boolean stoped = false;
+	private boolean stopped = false;
 	private int mainPoolSize = 10;
 	private int waitTimeSeconds = 5;
 	private int workExecutorPoolSize = 10;
@@ -91,12 +87,8 @@ public class SQSFactoryImpl implements SQSFactory{
 				for(SQSQueue queue : queues){
 					if(queue.getQueueName() == null || queue.getQueueName().equals(""))
 						throw new SQSInitializationException("queueName invalid["+ queue.getQueueName() +"]");
-					
-					for (String queueUrl : remoteQueueList) {
-						if(queueUrl!= null && queueUrl.endsWith("/"+ queue.getQueueName())){
-							queue.setQueueUrl(queueUrl);
-						}
-					}
+
+					remoteQueueList.stream().filter(queueUrl -> queueUrl != null && queueUrl.endsWith("/" + queue.getQueueName())).forEach(queue::setQueueUrl);
 					
 					if(queue.getQueueUrl() == null)
 						throw new SQSInitializationException("queueUrl null["+ queue.getQueueName() +"]");
@@ -131,41 +123,34 @@ public class SQSFactoryImpl implements SQSFactory{
 		});
 		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 		
-		executor.execute(new Runnable() {
-			@Override
-			public void run() {
-				while(true){
-					if(Thread.interrupted() || stoped){
-						break;
-					}else{
-						try{
-							ReceiveMessageRequest receiveMessageRequest = new ReceiveMessageRequest(queue.getQueueUrl());
-							receiveMessageRequest.setWaitTimeSeconds(waitTimeSeconds);
-							ReceiveMessageResult message = sqs.receiveMessage(receiveMessageRequest);
-							if(message != null && message.getMessages()!= null && message.getMessages().size() >0){
-								
-								for(final Message msg : message.getMessages()){
-									workExecutor.execute(new Runnable() {
-										@Override
-										public void run() {
-											try {
-												String message = SQSMessageBody.decode(msg.getBody());												
-												cs.handle(message);
-												String messageReceiptHandle = msg.getReceiptHandle();
-												sqs.deleteMessage(new DeleteMessageRequest()
-														.withQueueUrl(queue.getQueueUrl())
-														.withReceiptHandle(messageReceiptHandle));
-											} catch (Exception e) {
-												e.printStackTrace();
-											}
-										}
-									});
-								}
+		executor.execute(() -> {
+			while(true){
+				if(Thread.interrupted() || stopped){
+					break;
+				}else{
+					try{
+						ReceiveMessageRequest receiveMessageRequest = new ReceiveMessageRequest(queue.getQueueUrl());
+						receiveMessageRequest.setWaitTimeSeconds(waitTimeSeconds);
+						ReceiveMessageResult messages = sqs.receiveMessage(receiveMessageRequest);
+						if(messages != null && messages.getMessages()!= null && messages.getMessages().size() >0){
+
+							for(final Message msg : messages.getMessages()){
+								workExecutor.execute(() -> {
+                                    try {
+                                        String message = SQSMessageBody.decode(msg.getBody());
+                                        cs.handle(message);
+                                        String messageReceiptHandle = msg.getReceiptHandle();
+                                        sqs.deleteMessage(new DeleteMessageRequest()
+                                                .withQueueUrl(queue.getQueueUrl())
+                                                .withReceiptHandle(messageReceiptHandle));
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
+                                });
 							}
-						}catch (Exception e) {
-							new SQSMessageReceiveException(queue.getQueueUrl(), e).printStackTrace();
 						}
-						
+					} catch (Exception e) {
+						new SQSMessageReceiveException(queue.getQueueUrl(), e).printStackTrace();
 					}
 				}
 			}
@@ -197,13 +182,13 @@ public class SQSFactoryImpl implements SQSFactory{
 	}
 	
 	@PreDestroy
-	public void destory(){
-		stoped = true;
+	public void destroy(){
+		stopped = true;
 		if(workExecutor != null)
 			workExecutor.shutdown();
 		if(executor != null)
 			executor.shutdown();
-		System.out.println("destory");
+		System.out.println("destroy");
 	}
 
 	public List<SQSQueue> getQueues() {

@@ -81,11 +81,9 @@ public class SNSFactoryImpl implements SNSFactory {
 		if(remoteTopics!= null && remoteTopics.getTopics()!= null && remoteTopics.getTopics().size()> 0){
 			
 			for(SNSTopic t : topics){
-				for(Topic topic : remoteTopics.getTopics()){
-					if(topic.getTopicArn()!= null && topic.getTopicArn().endsWith(":"+ t.getTopicName())){
-						t.setArn(topic.getTopicArn());
-					}
-				}
+				remoteTopics.getTopics().stream().filter(topic -> topic.getTopicArn() != null && topic.getTopicArn().endsWith(":" + t.getTopicName())).forEach(topic -> {
+					t.setArn(topic.getTopicArn());
+				});
 				if(t.getArn() == null || t.getArn().equals(""))
 					throw new SNSInitializationException("topic mapping arn error ["+ t.getTopicName() +"]");
 			}

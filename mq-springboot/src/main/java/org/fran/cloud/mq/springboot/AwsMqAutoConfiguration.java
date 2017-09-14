@@ -1,29 +1,16 @@
 package org.fran.cloud.mq.springboot;
 
 import org.fran.cloud.mq.aws.exceptions.SQSInitializationException;
-import org.fran.cloud.mq.aws.sns.factories.SNSClient;
 import org.fran.cloud.mq.aws.sns.factories.SNSFactoryImpl;
 import org.fran.cloud.mq.aws.sns.factories.SNSTopicImpl;
 import org.fran.cloud.mq.aws.sns.interfaces.SNSFactory;
 import org.fran.cloud.mq.aws.sns.interfaces.SNSTopic;
 import org.fran.cloud.mq.aws.sqs.anno.Consumer;
-import org.fran.cloud.mq.aws.sqs.factories.SQSClient;
 import org.fran.cloud.mq.aws.sqs.factories.SQSFactoryImpl;
 import org.fran.cloud.mq.aws.sqs.factories.SQSQueueImpl;
 import org.fran.cloud.mq.aws.sqs.interfaces.SQSConsumer;
-import org.fran.cloud.mq.aws.sqs.interfaces.SQSConsumerProvider;
 import org.fran.cloud.mq.aws.sqs.interfaces.SQSFactory;
 import org.fran.cloud.mq.aws.sqs.interfaces.SQSQueue;
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.annotation.AnnotatedGenericBeanDefinition;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.config.BeanDefinitionHolder;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.beans.factory.support.BeanDefinitionReaderUtils;
-import org.springframework.beans.factory.support.BeanDefinitionRegistry;
-import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.*;
@@ -92,23 +79,20 @@ public class AwsMqAutoConfiguration{
             sqsFactory.setSecurityKey(sqsProperties.getSecurityKey());
             sqsFactory.setQueues(qArray);
             sqsFactory.setRegion(sqsProperties.getRegion());
-            sqsFactory.setSqsConsumerProvider(new SQSConsumerProvider() {
-                @Override
-                public List<SQSConsumer> getConsumers() throws SQSInitializationException {
-                    List<SQSConsumer> res = new ArrayList<>();
-                    String[] consumers = applicationContext.getBeanNamesForAnnotation(Consumer.class);
-                    if(consumers!= null){
-                        for(String cs : consumers){
-                            Object csObj = applicationContext.getBean(cs);
-                            if(csObj instanceof SQSConsumer){
-                                res.add((SQSConsumer)csObj);
-                            }else{
-                                throw new SQSInitializationException("Consumer must instanceof SQSConsumer");
-                            }
+            sqsFactory.setSqsConsumerProvider(() -> {
+                List<SQSConsumer> res = new ArrayList<>();
+                String[] consumers = applicationContext.getBeanNamesForAnnotation(Consumer.class);
+                if(consumers!= null){
+                    for(String cs : consumers){
+                        Object csObj = applicationContext.getBean(cs);
+                        if(csObj instanceof SQSConsumer){
+                            res.add((SQSConsumer)csObj);
+                        }else{
+                            throw new SQSInitializationException("Consumer must instanceof SQSConsumer");
                         }
                     }
-                    return res;
                 }
+                return res;
             });
             sqsFactory.init();
         }

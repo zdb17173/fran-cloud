@@ -29,7 +29,7 @@ public class Consumer1 implements SQSConsumer {
 
 	@Override
 	public String getQueue() {
-		return "news-publish";
+		return "newspublish-translate";
 	}
 
 }
