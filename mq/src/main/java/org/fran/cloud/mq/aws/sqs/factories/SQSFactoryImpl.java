@@ -106,22 +106,6 @@ public class SQSFactoryImpl implements SQSFactory{
 		if(cs == null || cs.getQueue() == null || getQueue(cs.getQueue()) == null || getQueue(cs.getQueue()).getQueueUrl() == null)
 			throw new SQSInitializationException("registerMessageConsumerError");
 		SQSQueue queue = getQueue(cs.getQueue());
-
-		ObjectMapper mapper = new ObjectMapper();
-		mapper.setPropertyNamingStrategy(new PropertyNamingStrategy() {  
-		    private static final long serialVersionUID = 1L;
-		    @Override  
-		    public String nameForSetterMethod(MapperConfig<?> config,  
-		            AnnotatedMethod method, String defaultName) {  
-		        return method.getName().substring(3);  
-		    }
-		    @Override  
-		    public String nameForGetterMethod(MapperConfig<?> config,  
-		            AnnotatedMethod method, String defaultName) {  
-		        return method.getName().substring(3);  
-		    }  
-		});
-		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 		
 		executor.execute(() -> {
 			while(true){

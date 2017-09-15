@@ -101,7 +101,7 @@ public class AwsMqAutoConfiguration{
 
     @PreDestroy
     public void destroy(){
-        sqsFactory.destory();
+        sqsFactory.destroy();
     }
 
     @Bean
