@@ -6,7 +6,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * Created by fran on 2017/9/12.
  */
 @ConfigurationProperties(prefix = AwsMqSqsProperties.AWS_MQ_SQS_PROPERTIES_PREFIX)
-public class AwsMqSqsProperties {
+public class AwsMqSqsProperties extends AwsCommonProperties{
     public final static String AWS_MQ_SQS_PROPERTIES_PREFIX = "sqs";
 
     String accessKey;

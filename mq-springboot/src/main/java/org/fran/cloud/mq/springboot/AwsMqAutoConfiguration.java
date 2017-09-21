@@ -59,6 +59,9 @@ public class AwsMqAutoConfiguration{
             snsFactory.setSecurityKey(snsProperties.getSecurityKey());
             snsFactory.setRegion(snsProperties.getRegion());
             snsFactory.setTopics(tArray);
+            snsFactory.setProxyHost(snsProperties.getProxy_host());
+            snsFactory.setProxyPort(snsProperties.getProxy_port());
+            snsFactory.setStartProxy(snsProperties.isProxy_open());
             snsFactory.init();
         }
         if(!StringUtils.isEmpty(sqsProperties.getAccessKey())
@@ -79,6 +82,10 @@ public class AwsMqAutoConfiguration{
             sqsFactory.setSecurityKey(sqsProperties.getSecurityKey());
             sqsFactory.setQueues(qArray);
             sqsFactory.setRegion(sqsProperties.getRegion());
+            sqsFactory.setProxyHost(sqsProperties.getProxy_host());
+            sqsFactory.setProxyPort(sqsProperties.getProxy_port());
+            sqsFactory.setStartProxy(sqsProperties.isProxy_open());
+
             sqsFactory.setSqsConsumerProvider(() -> {
                 List<SQSConsumer> res = new ArrayList<>();
                 String[] consumers = applicationContext.getBeanNamesForAnnotation(Consumer.class);

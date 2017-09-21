@@ -7,6 +7,7 @@ import java.util.concurrent.Executors;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
+import org.fran.cloud.mq.aws.config.AbstractAwsProxyConfig;
 import org.fran.cloud.mq.aws.exceptions.SQSInitializationException;
 import org.fran.cloud.mq.aws.exceptions.SQSMessageReceiveException;
 import org.fran.cloud.mq.aws.sqs.interfaces.SQSConsumer;
@@ -31,7 +32,7 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 
-public class SQSFactoryImpl implements SQSFactory{
+public class SQSFactoryImpl extends AbstractAwsProxyConfig implements SQSFactory{
 
 	private ExecutorService executor;
 	private ExecutorService workExecutor;
@@ -45,6 +46,8 @@ public class SQSFactoryImpl implements SQSFactory{
 	private int waitTimeSeconds = 5;
 	private int workExecutorPoolSize = 10;
 	private SQSConsumerProvider sqsConsumerProvider;
+
+
 	
 	@PostConstruct
 	public void init() throws SQSInitializationException{
@@ -56,6 +59,7 @@ public class SQSFactoryImpl implements SQSFactory{
 			return;
 		else{
 			ClientConfiguration config = new ClientConfiguration();
+			setProxy(config);
 			AmazonSQSClientBuilder builder = AmazonSQSClient.builder();
 			builder.setClientConfiguration(config);
 			builder.setCredentials(new AWSCredentialsProvider() {

@@ -36,6 +36,11 @@
 		<property name="region" value="#{config['q.sqs.region']}" />
 		<property name="accessKey" value="#{config['q.sqs.accesskey']}" />
 		<property name="securityKey" value="#{config['q.sqs.securityKey']}" />
+
+		<property name="startProxy" value="#{config['q.proxy.open']}" />
+		<property name="proxyPort" value="#{config['q.proxy.port']}" />
+		<property name="proxyHost" value="#{config['q.proxy.host']}" />
+
 		<property name="waitTimeSeconds" value="5" />
 		<property name="mainPoolSize" value="10" />
 		<property name="workExecutorPoolSize" value="10" />
@@ -58,6 +63,11 @@
 		<property name="region" value="#{config['q.sns.region']}" />
 		<property name="accessKey" value="#{config['q.sns.accesskey']}" />
 		<property name="securityKey" value="#{config['q.sns.securityKey']}" />
+
+		<property name="startProxy" value="#{config['q.proxy.open']}" />
+		<property name="proxyPort" value="#{config['q.proxy.port']}" />
+		<property name="proxyHost" value="#{config['q.proxy.host']}" />
+
 		<property name="topics">
 			<list>
 				<ref bean="newsPublishTopic" />

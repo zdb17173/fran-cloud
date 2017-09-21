@@ -14,11 +14,12 @@ import com.amazonaws.services.sns.AmazonSNSClient;
 import com.amazonaws.services.sns.AmazonSNSClientBuilder;
 import com.amazonaws.services.sns.model.ListTopicsResult;
 import com.amazonaws.services.sns.model.Topic;
+import org.fran.cloud.mq.aws.config.AbstractAwsProxyConfig;
 import org.fran.cloud.mq.aws.exceptions.SNSInitializationException;
 import org.fran.cloud.mq.aws.sns.interfaces.SNSFactory;
 import org.fran.cloud.mq.aws.sns.interfaces.SNSTopic;
 
-public class SNSFactoryImpl implements SNSFactory {
+public class SNSFactoryImpl extends AbstractAwsProxyConfig implements SNSFactory {
 
 
 	private String region;
@@ -52,6 +53,7 @@ public class SNSFactoryImpl implements SNSFactory {
 	@PostConstruct
 	public void init() throws SNSInitializationException {
 		ClientConfiguration config = new ClientConfiguration();
+		setProxy(config);
 		AmazonSNSClientBuilder builder = AmazonSNSClient.builder().withClientConfiguration(config)
 				.withCredentials(new AWSCredentialsProvider() {
 

@@ -7,7 +7,7 @@ package org.fran.cloud.mq.springboot;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties(prefix = AwsMqSnsProperties.AWS_MQ_SNS_PROPERTIES_PREFIX)
-public class AwsMqSnsProperties {
+public class AwsMqSnsProperties extends AwsCommonProperties{
     public final static String AWS_MQ_SNS_PROPERTIES_PREFIX = "sns";
 
     String accessKey;
