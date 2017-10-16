@@ -31,6 +31,7 @@
     <modules>
         <module>mq</module>
         <module>mq-springboot</module>
+        <module>storage</module>
     </modules>
 
     <dependencyManagement>
