@@ -13,7 +13,8 @@ import org.fran.cloud.mq.aws.sqs.interfaces.SQSFactory;
 import org.fran.cloud.mq.aws.sqs.interfaces.SQSQueue;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.PostConstruct;
@@ -62,6 +63,7 @@ public class AwsMqAutoConfiguration{
             snsFactory.setProxyHost(snsProperties.getProxy_host());
             snsFactory.setProxyPort(snsProperties.getProxy_port());
             snsFactory.setStartProxy(snsProperties.isProxy_open());
+            snsFactory.setSendMsg(snsProperties.isSendMsg());
             snsFactory.init();
         }
         if(!StringUtils.isEmpty(sqsProperties.getAccessKey())
@@ -85,6 +87,8 @@ public class AwsMqAutoConfiguration{
             sqsFactory.setProxyHost(sqsProperties.getProxy_host());
             sqsFactory.setProxyPort(sqsProperties.getProxy_port());
             sqsFactory.setStartProxy(sqsProperties.isProxy_open());
+            sqsFactory.setStartConsumer(sqsProperties.isStartConsumer());
+            sqsFactory.setSendMsg(sqsProperties.isSendMsg());
 
             sqsFactory.setSqsConsumerProvider(() -> {
                 List<SQSConsumer> res = new ArrayList<>();

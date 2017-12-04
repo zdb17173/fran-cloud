@@ -25,13 +25,15 @@ public class TestSQSJunit {
 	@Resource
 	SQSFactory sQSFactory;
 	@Resource
-	SQSQueue newsPublishQueue;
+	SQSQueue testQueue;
 	@Resource
-	SNSTopic newsPublishTopic;
+	SNSTopic testTopic;
 	
 	@Test
 	public void testTopic(){
-		SNSClient cli = sNSFactory.getClient(newsPublishTopic);
+		SNSClient cli = sNSFactory.getClient(testTopic);
+
+		for(int i = 0 ; i < 1000; i ++)
 		cli.sendMessage("111");
 		
 		try {
@@ -58,7 +60,7 @@ public class TestSQSJunit {
 			}
 		});
 		t.start();*/
-		SQSClient cli = sQSFactory.getClient(newsPublishQueue);
+		SQSClient cli = sQSFactory.getClient(testQueue);
 		try {
 			cli.send("ddsadjsakd");
 		} catch (JsonProcessingException e1) {

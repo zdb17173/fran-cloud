@@ -21,12 +21,8 @@
 
 
 	<!-- queue -->
-	<bean id="newsPublishQueue" class="org.fran.cloud.mq.aws.sqs.factories.SQSQueueImpl">
-		<property name="queueName" value="#{config['q.sqs.queue.translate']}" />
-	</bean>
-
-	<bean id="layoutQueue" class="org.fran.cloud.mq.aws.sqs.factories.SQSQueueImpl">
-		<property name="queueName" value="#{config['q.sqs.queue.layout']}" />
+	<bean id="testQueue" class="org.fran.cloud.mq.aws.sqs.factories.SQSQueueImpl">
+		<property name="queueName" value="#{config['q.sqs.queue.test']}" />
 	</bean>
 
 	<bean id="csProvider" class="org.fran.cloud.mq.extend.SQSConsumerProviderImpl"></bean>
@@ -47,15 +43,16 @@
 		<property name="sqsConsumerProvider" ref="csProvider"/>
 		<property name="queues">
 			<list>
-				<ref bean="newsPublishQueue" />
-				<ref bean="layoutQueue" />
+				<ref bean="testQueue" />
 			</list>
 		</property>
+		<property name="startConsumer" value="true"/>
+		<property name="sendMsg" value="true"/>
 	</bean>
 
 	<!-- topic -->
-	<bean id="newsPublishTopic" class="org.fran.cloud.mq.aws.sns.factories.SNSTopicImpl">
-		<property name="topicName" value="#{config['q.sns.topic.translate']}" />
+	<bean id="testTopic" class="org.fran.cloud.mq.aws.sns.factories.SNSTopicImpl">
+		<property name="topicName" value="#{config['q.sns.topic.test']}" />
 	</bean>
 
 	<!-- topic client factory -->
@@ -68,9 +65,10 @@
 		<property name="proxyPort" value="#{config['q.proxy.port']}" />
 		<property name="proxyHost" value="#{config['q.proxy.host']}" />
 
+		<property name="sendMsg" value="true"/>
 		<property name="topics">
 			<list>
-				<ref bean="newsPublishTopic" />
+				<ref bean="testTopic" />
 			</list>
 		</property>
 	</bean>

@@ -6,7 +6,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * Created by fran on 2017/9/12.
  */
 @ConfigurationProperties(prefix = AwsMqSqsProperties.AWS_MQ_SQS_PROPERTIES_PREFIX)
-public class AwsMqSqsProperties extends AwsCommonProperties{
+public class AwsMqSqsProperties extends AwsCommonProperties {
     public final static String AWS_MQ_SQS_PROPERTIES_PREFIX = "sqs";
 
     String accessKey;
@@ -16,6 +16,8 @@ public class AwsMqSqsProperties extends AwsCommonProperties{
     int workExecutorPoolSize;
     String region;
     String[] queuename;
+    boolean startConsumer = true;
+    boolean sendMsg = true;
 
     public String getAccessKey() {
         return accessKey;
@@ -71,5 +73,21 @@ public class AwsMqSqsProperties extends AwsCommonProperties{
 
     public void setRegion(String region) {
         this.region = region;
+    }
+
+    public boolean isStartConsumer() {
+        return startConsumer;
+    }
+
+    public void setStartConsumer(boolean startConsumer) {
+        this.startConsumer = startConsumer;
+    }
+
+    public boolean isSendMsg() {
+        return sendMsg;
+    }
+
+    public void setSendMsg(boolean sendMsg) {
+        this.sendMsg = sendMsg;
     }
 }

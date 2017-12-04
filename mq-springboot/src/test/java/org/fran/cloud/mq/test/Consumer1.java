@@ -28,7 +28,7 @@ public class Consumer1 implements SQSConsumer {
 
 	@Override
 	public String getQueue() {
-		return "newspublish-layout";
+		return "test-sqs";
 	}
 
 }

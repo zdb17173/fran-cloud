@@ -27,6 +27,7 @@ public class SNSFactoryImpl extends AbstractAwsProxyConfig implements SNSFactory
 	private String securityKey;
 	AmazonSNS sns;
 	List<SNSTopic> topics;
+	boolean sendMsg = true;
 
 	public SNSTopic getTopic(String name){
 		if(name!= null){
@@ -42,12 +43,12 @@ public class SNSFactoryImpl extends AbstractAwsProxyConfig implements SNSFactory
 		if(t == null)
 			return null;
 		else{
-			return new SNSClient(sns,t);
+			return new SNSClient(sns,t,sendMsg);
 		}
 	}
 
 	public SNSClient getClient(SNSTopic topic){
-		return new SNSClient(sns,topic);
+		return new SNSClient(sns,topic,sendMsg);
 	}
 	
 	@PostConstruct
@@ -125,6 +126,8 @@ public class SNSFactoryImpl extends AbstractAwsProxyConfig implements SNSFactory
 	public void setTopics(List<SNSTopic> topics) {
 		this.topics = topics;
 	}
-	
-	
+
+	public void setSendMsg(boolean sendMsg) {
+		this.sendMsg = sendMsg;
+	}
 }

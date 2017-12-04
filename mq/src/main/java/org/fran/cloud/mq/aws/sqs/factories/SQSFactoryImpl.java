@@ -46,9 +46,9 @@ public class SQSFactoryImpl extends AbstractAwsProxyConfig implements SQSFactory
 	private int waitTimeSeconds = 5;
 	private int workExecutorPoolSize = 10;
 	private SQSConsumerProvider sqsConsumerProvider;
+	private boolean startConsumer = true;
+	private boolean sendMsg = true;
 
-
-	
 	@PostConstruct
 	public void init() throws SQSInitializationException{
 		
@@ -99,10 +99,13 @@ public class SQSFactoryImpl extends AbstractAwsProxyConfig implements SQSFactory
 				}
 			}
 
-			if(sqsConsumerProvider.getConsumers()!= null && sqsConsumerProvider.getConsumers().size()> 0)
-				for(SQSConsumer cs : sqsConsumerProvider.getConsumers()){
-					registerMessageConsumer(cs);
-				}
+			if(startConsumer){
+				if(sqsConsumerProvider.getConsumers()!= null && sqsConsumerProvider.getConsumers().size()> 0)
+					for(SQSConsumer cs : sqsConsumerProvider.getConsumers()){
+						registerMessageConsumer(cs);
+					}
+			}
+
 		}
 	}
 	
@@ -158,7 +161,7 @@ public class SQSFactoryImpl extends AbstractAwsProxyConfig implements SQSFactory
 	public SQSClient getClient(SQSQueue queue){
 		if(queue == null || queue.getQueueName() == null || "".equals(queue.getQueueName()))
 			return null;
-		return new SQSClient(sqs, queue);
+		return new SQSClient(sqs, queue, sendMsg);
 	}
 
 	public SQSClient getClient(String qName){
@@ -166,11 +169,14 @@ public class SQSFactoryImpl extends AbstractAwsProxyConfig implements SQSFactory
 		if(queue == null || queue.getQueueName() == null || "".equals(queue.getQueueName()))
 			return null;
 		else
-			return new SQSClient(sqs, queue);
+			return new SQSClient(sqs, queue, sendMsg);
 	}
 	
 	@PreDestroy
 	public void destroy(){
+		if(stopped)
+			return;
+
 		stopped = true;
 		if(workExecutor != null)
 			workExecutor.shutdown();
@@ -221,5 +227,11 @@ public class SQSFactoryImpl extends AbstractAwsProxyConfig implements SQSFactory
 
 	public void setSqsConsumerProvider(SQSConsumerProvider sqsConsumerProvider) {
 		this.sqsConsumerProvider = sqsConsumerProvider;
+	}
+	public void setStartConsumer(boolean startConsumer) {
+		this.startConsumer = startConsumer;
+	}
+	public void setSendMsg(boolean sendMsg) {
+		this.sendMsg = sendMsg;
 	}
 }
