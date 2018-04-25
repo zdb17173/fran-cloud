@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.fran.cloud</groupId>
-    <artifactId>parent</artifactId>
+    <artifactId>fran-cloud</artifactId>
     <version>1.0</version>
     <packaging>pom</packaging>
 
@@ -12,14 +12,20 @@
         <project.version>1.0</project.version>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <!-- spring -->
+        <!-- spring
         <spring.version>4.3.0.RELEASE</spring.version>
-        <!-- test -->
-        <junit.version>4.12</junit.version>
 
-        <!-- springboot -->
         <org.springframework.boot.version>1.5.2.RELEASE</org.springframework.boot.version>
         <org.mybatis.spring.boot.version>1.2.0</org.mybatis.spring.boot.version>
+        -->
+        <com.fasterxml.jason.core.version>2.7.5</com.fasterxml.jason.core.version>
+        <org.apache.httpcomponents.version>4.5</org.apache.httpcomponents.version>
+
+        <org.slf4j.version>1.7.21</org.slf4j.version>
+        <logback.version>1.2.1</logback.version>
+        <javax.servlet.version>3.1.0</javax.servlet.version>
+
+        <junit.version>4.12</junit.version>
 
         <!-- build -->
         <org.apache.maven.plugins.version>3.5.1</org.apache.maven.plugins.version>
@@ -32,36 +38,77 @@
         <module>mq</module>
         <module>mq-springboot</module>
         <module>storage</module>
+        <module>cfgserver</module>
+        <module>cfgclient</module>
+        <module>gateway-zuul</module>
+        <module>security-cas-cli</module>
+        <module>security-cas-server</module>
+        <module>cfgtest</module>
     </modules>
 
     <dependencyManagement>
         <dependencies>
+            <!--fasterxml for log4j2 JSONLayout-->
             <dependency>
-                <groupId>org.fran.cloud</groupId>
-                <artifactId>mq</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-
-            <dependency>
-                <groupId>org.mybatis.spring.boot</groupId>
-                <artifactId>mybatis-spring-boot-starter</artifactId>
-                <version>${org.mybatis.spring.boot.version}</version>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>${com.fasterxml.jason.core.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-dependencies</artifactId>
-                <version>${org.springframework.boot.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${com.fasterxml.jason.core.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-starter-test</artifactId>
-                <version>${org.springframework.boot.version}</version>
-                <scope>test</scope>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-annotations</artifactId>
+                <version>${com.fasterxml.jason.core.version}</version>
+            </dependency>
+
+            <!-- http client -->
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpclient</artifactId>
+                <version>${org.apache.httpcomponents.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpmime</artifactId>
+                <version>${org.apache.httpcomponents.version}</version>
+            </dependency>
+
+            <!--slf4j-->
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${org.slf4j.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-core</artifactId>
+                <version>${logback.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>${logback.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-access</artifactId>
+                <version>${logback.version}</version>
             </dependency>
 
             <dependency>

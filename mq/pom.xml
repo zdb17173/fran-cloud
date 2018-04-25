@@ -2,8 +2,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
+        <artifactId>fran-cloud</artifactId>
         <groupId>org.fran.cloud</groupId>
-        <artifactId>parent</artifactId>
         <version>1.0</version>
     </parent>
     <groupId>org.fran.cloud</groupId>
@@ -16,6 +16,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <spring.version>4.3.0.RELEASE</spring.version>
     </properties>
 
     <dependencies>
@@ -30,7 +31,7 @@
         <dependency>
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-java-sdk-sns</artifactId>
-            <version>1.11.189</version>
+            <version>1.11.248</version>
         </dependency>
 
         <dependency>
