@@ -38,12 +38,8 @@
         <module>mq</module>
         <module>mq-springboot</module>
         <module>storage</module>
-        <module>cfgserver</module>
-        <module>cfgclient</module>
-        <module>gateway-zuul</module>
-        <module>security-cas-cli</module>
-        <module>security-cas-server</module>
-        <module>cfgtest</module>
+        <module>azure</module>
+        <module>aws-lambda-dynamodb</module>
     </modules>
 
     <dependencyManagement>
