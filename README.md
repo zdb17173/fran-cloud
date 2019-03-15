@@ -1,6 +1,23 @@
 # fran-cloud
+整理了azure、aws的云服务的相关代码开发。
+包括了：
+- aws
+    - aws sqs 消息队列服务
+    - aws sns 消息订阅服务
+    - aws lambda 无服务接口
+    - aws dynamoDB 增删改查
+    - aws s3文件存储
+- azure
+    - mediaservice 视频转码
+    - blob 文件存储
 
+# fran-cloud/aws-lambda-dynamodb
 
+包括了aws的lambda demo以及部署手册
+
+# fran-cloud/azure/azure-storage
+
+azure blob与mediaservice
 
 # fran-cloud/mq
 
